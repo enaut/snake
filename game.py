@@ -71,7 +71,7 @@ class Spiel():
             for i in self.levelindex:
                 x,y = self.number2coord(i)
                 tex = self.canvas.create_text(x+self.pixelsize/2 - 3,
-                                           y+self.pixelsize/2-3,
+                                           y+self.pixelsize/2,
                                            fill="white",
                                            text=str(self.level[i]),
                                            font=("Courier 11 bold"))

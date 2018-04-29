@@ -11,31 +11,26 @@ s.level[random.randint(0,399)] = random.randint(-3,-1)
 
 koordinate = [10,1]
 
-position = [10,10]
-richtung = [0,1]
-länge = 10
+class Spieler():
+    def __init__(self, name, pos, dir, length, alive):
+        self.name = name
+        self.position = pos
+        self.direction = dir
+        self.length = length
+        self.alive = alive
+        
+dieSpieler = [Spieler(name="peter", pos=[ 5,5], dir=[0,1], length=10, alive=True),
+              Spieler(name="paul",  pos=[15,5], dir=[0,1], length=10, alive=True),
+              ]
 
 def coord2index(coord):
     result = coord[0] + coord[1] * 20
     return result
 
-print("umrechnung: ", coord2index(coord = koordinate))
-
-def neueposition():
-    position[0] = position[0] + richtung[0]
-    position[1] = position[1] + richtung[1]
-    if position[0] == 20:
-        position[0] = 0
-    if position[1] == 20:
-        position[1] = 0
-    if position[0] == -1:
-        position[0] = 19
-    if position[1] == -1:
-        position[1] = 19
-
-print("alte position: ", position)
-neueposition()
-print("neue pos: ", position)
+def neueposition(pos, dir):
+    pos[0] = (pos[0] + dir[0]) % 20
+    pos[1] = (pos[1] + dir[1]) % 20
+    return pos
     
 
 def alleme(l):
@@ -45,30 +40,45 @@ def alleme(l):
     return l
 
 def schritt():
-    global länge
+    global dieSpieler
     s.level = alleme(s.level)
-    neueposition()
-    index = coord2index(position)
-    if s.level[index] > 0:
-        print("game over")
-        print("Punkte: ", länge)
+    for sp in dieSpieler:
+        if sp.alive:
+            np = neueposition(sp.position, sp.direction)
+            index = coord2index(np)
+            if s.level[index] > 0:
+                print("Crashed game over for: ", sp.name)
+                print("Punkte: ", sp.length)
+                sp.alive = False
+                break
+            if s.level[index] < 0:
+                print("yummy")
+                sp.length = sp.length + (s.level[index] * -1)
+                s.level[random.randint(0,399)] = random.randint(-3,-1)
+            s.level[index] = sp.length
+    
+    if not(dieSpieler[0].alive or dieSpieler[1].alive):
+        print("Beide Spieler sind tot!")
         s.exit()
-    if s.level[index] < 0:
-        print("yummy")
-        länge = länge + (s.level[index] * -1)
-        s.level[random.randint(0,399)] = random.randint(-3,-1)
-    s.level[index] = länge
 
 def tastendruck(taste):
-    global richtung
+    global dieSpieler
     if taste == "Up":
-        richtung = [0,-1]
+        dieSpieler[0].direction = [ 0,-1]
     if taste == "Down":
-        richtung = [0,1]
+        dieSpieler[0].direction = [ 0, 1]
     if taste == "Left":
-        richtung = [-1,0]
+        dieSpieler[0].direction = [-1, 0]
     if taste == "Right":
-        richtung = [1,0]
+        dieSpieler[0].direction = [ 1, 0]
+    if taste == "w":
+        dieSpieler[1].direction = [ 0,-1]
+    if taste == "s":
+        dieSpieler[1].direction = [ 0, 1]
+    if taste == "a":
+        dieSpieler[1].direction = [-1, 0]
+    if taste == "d":
+        dieSpieler[1].direction = [ 1, 0]
 
 s.addStep(schritt)
 s.addKeylistener(tastendruck)
